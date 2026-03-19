@@ -1,0 +1,7 @@
+django
+pymupdf
+numpy
+pillow
+faiss-cpu
+sentence-transformers
+torch

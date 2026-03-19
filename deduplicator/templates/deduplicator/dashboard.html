@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Document Deduplication Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .cluster-card { border: none; border-radius: 12px; transition: 0.3s; }
+        .cluster-card:hover { transform: translateY(-5px); }
+        .card-header { border-top-left-radius: 12px !important; border-top-right-radius: 12px !important; }
+        .original-box { border-left: 5px solid #198754 !important; background-color: #f8fff9; }
+        .copy-box { background-color: #ffffff; }
+        .img-container { height: 160px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .img-container img { max-height: 100%; width: auto; object-fit: contain; border-radius: 4px; }
+        .filename-text { font-size: 0.85rem; color: #6c757d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark">AI-Driven Document Clustering</h2>
+        <p class="text-muted">Automated duplicate detection using SigLIP Vision Transformer & FAISS</p>
+    </div>
+
+    {% for cluster in clusters %}
+    <div class="card cluster-card shadow-sm mb-5">
+        <div class="card-header bg-dark text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>📄 File:</strong> {{ cluster.pdf_name }} | 
+                    <strong>Page:</strong> {{ cluster.head.page_number }}
+                </span>
+                <span class="small opacity-75">FAISS Vector Search Engine</span>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="p-3 border rounded original-box h-100 text-center">
+                        <h6 class="text-success fw-bold mb-3">Original Source</h6>
+                        <div class="img-container mb-2">
+                            <img src="{{ cluster.head.page_image.url }}" alt="Original">
+                        </div>
+                        <p class="small mb-0 fw-bold mt-2">Base Reference</p>
+                    </div>
+                </div>
+
+                <div class="col-md-9">
+                    <div class="row row-cols-2 row-cols-lg-4 g-3">
+                        {% for copy in cluster.duplicates %}
+                        <div class="col">
+                            <div class="p-2 border rounded copy-box text-center shadow-sm h-100">
+                                <div class="img-container">
+                                    <img src="{{ copy.page_image.url }}" alt="Duplicate">
+                                </div>
+                                <div class="mt-2">
+                                    <p class="small mb-0 text-secondary">Detected Copy {{ forloop.counter }}</p>
+                                    <span class="badge bg-light text-dark border">AI Match</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-5">
+        <div class="alert alert-info d-inline-block px-5 shadow-sm">
+            <h4 class="mb-2">No Clusters Found</h4>
+            <p class="mb-0">Upload a PDF in the <a href="/admin" class="fw-bold text-decoration-none">Admin Portal</a> to start processing.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>
